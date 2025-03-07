@@ -1,0 +1,51 @@
+name: Terraform Deploy # Gives the workflow a name
+
+on: # Defines the events that trigger the workflow
+  push: # Runs when code is pushed to the branch
+    branches:
+      - main # Specifies the main branch
+  pull_request: # Runs when a pull request is opened or updated
+    branches:
+      - main # Specifies the main branch
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs: # Groups steps into a job
+  terraform: # Name of the job
+    runs-on: ubuntu-latest # Runs on an Ubuntu virtual machine
+
+    steps: # List of steps to execute in this job
+    - name: Checkout code # Downloads the repository code
+      uses: actions/checkout@v2 # Uses a prebuilt GitHub Action to fetch the code
+
+    - name: Set up Terraform # Installs Terraform for the workflow
+      uses: hashicorp/setup-terraform@v1 # Uses HashiCorp's Terraform setup Action
+      with:
+        terraform_version: 1.1.0 # Specifies Terraform version to install
+
+    - name: Configure AWS credentials # Sets up AWS access for Terraform
+      uses: aws-actions/configure-aws-credentials@v1 # Uses a prebuilt Action to set AWS credentials
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # AWS access key (stored securely in GitHub Secrets)
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS secret key (stored securely in GitHub Secrets)
+        aws-region: us-east-1 # Specifies the AWS region to use
+
+    - name: Terraform Init # Initializes Terraform in the specified directory
+      id: Init # Gives the step an ID for reference
+      run: terraform init # Runs Terraform init command to set up the working directory
+      working-directory: Terraform # Points to the Terraform directory in the repo
+
+    - name: Terraform Validate # Validates the Terraform files for errors
+      id: Validate # Gives the step an ID for reference
+      run: terraform validate # Runs Terraform validate to check configurations
+      working-directory: Terraform # Points to the Terraform directory in the repo
+
+    - name: Terraform Plan # Generates a plan of the changes Terraform will make
+      id: Plan # Gives the step an ID for reference
+      run: terraform plan # Runs Terraform plan to preview changes
+      working-directory: Terraform # Points to the Terraform directory in the repo
+
+    - name: Terraform Apply # Applies the Terraform configuration to update infrastructure
+      id: Apply # Gives the step an ID for reference
+      if: github.ref == 'refs/heads/main' # Ensures this runs only for the main branch
+      run: terraform apply -auto-approve # Runs Terraform apply to make the changes without manual confirmation
+      working-directory: Terraform # Points to the Terraform directory in the repo

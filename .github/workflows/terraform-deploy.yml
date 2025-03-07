@@ -1,9 +1,6 @@
 name: Terraform Deploy # Gives the workflow a name
 
 on: # Defines the events that trigger the workflow
-  push: # Runs when code is pushed to the branch
-    branches:
-      - main # Specifies the main branch
   pull_request: # Runs when a pull request is opened or updated
     branches:
       - main # Specifies the main branch

@@ -1,10 +1,12 @@
 name: Terraform Deploy # Gives the workflow a name
 
-on: # Defines the events that trigger the workflow
-  pull_request: # Runs when a pull request is opened or updated
+on:
+  pull_request:
+    types:
+      - closed  # Runs only when a PR is merged (not just closed)
     branches:
-      - main # Specifies the main branch
-  workflow_dispatch: # Allows manual triggering of the workflow
+      - main
+  workflow_dispatch: # Allows manual triggering (optional)
 
 jobs: # Groups steps into a job
   terraform: # Name of the job
@@ -43,6 +45,6 @@ jobs: # Groups steps into a job
 
     - name: Terraform Apply # Applies the Terraform configuration to update infrastructure
       id: Apply # Gives the step an ID for reference
-      if: github.ref == 'refs/heads/main' # Ensures this runs only for the main branch
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: terraform apply -auto-approve # Runs Terraform apply to make the changes without manual confirmation
       working-directory: Terraform # Points to the Terraform directory in the repo

@@ -1,5 +1,5 @@
 resource "aws_instance" "web_instance" {
-  ami             = "ami-0c55b159cbfafe1f0"       # Amazon Linux 2 AMI ID
+  ami             = "ami-0c614dee691cbbf37"       # Amazon Linux 2 AMI ID
   instance_type   = "t2.micro"                    # Instance type
   key_name        = "class"               # Your actual key pair name
   security_groups = ["default"]          # Use the existing security group by its name or ID
